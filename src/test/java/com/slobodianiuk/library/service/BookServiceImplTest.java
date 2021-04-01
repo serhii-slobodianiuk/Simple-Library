@@ -1,6 +1,5 @@
 package com.slobodianiuk.library.service;
 
-import com.slobodianiuk.library.controller.BookController;
 import com.slobodianiuk.library.exception.NotFoundException;
 import com.slobodianiuk.library.model.Book;
 import com.slobodianiuk.library.model.User;
@@ -10,11 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
 import java.util.List;
 
@@ -25,12 +20,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-//@MockitoSettings(strictness = Strictness.LENIENT)
 class BookServiceImplTest {
 
     private static final String TITLE = "Test title";
     private static final String AUTHOR = "Test author";
-    private static final String ISBN = "111";
+    private static final String ISBN = "12300857251";
     private static final Long ID = 123L;
     private static final String PHONE_NUMBER = "12345";
 
@@ -39,6 +33,7 @@ class BookServiceImplTest {
 
     @Mock
     UserBookService userBookService;
+
 
     @InjectMocks
     BookServiceImpl bookService;
@@ -93,6 +88,7 @@ class BookServiceImplTest {
         book.setId(ID);
 
         Book expectedUpdated = new Book();
+        expectedUpdated.setIsbn(book.getIsbn());
         expectedUpdated.setAuthor("new author");
         expectedUpdated.setTitle("new title");
 
