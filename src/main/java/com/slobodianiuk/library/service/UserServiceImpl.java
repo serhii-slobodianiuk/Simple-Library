@@ -63,4 +63,5 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException("User for phoneNumber " + phoneNumber + " not found");
         }
     }
+
 }
