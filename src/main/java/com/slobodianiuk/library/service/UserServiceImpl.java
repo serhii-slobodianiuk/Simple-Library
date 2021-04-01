@@ -5,6 +5,7 @@ import com.slobodianiuk.library.exception.NotFoundException;
 import com.slobodianiuk.library.model.Book;
 import com.slobodianiuk.library.model.User;
 import com.slobodianiuk.library.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +13,10 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private UserBookService userBookService;
 
     public UserServiceImpl(UserRepository userRepository) {
@@ -20,13 +24,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAll() {
-        return Lists.newArrayList(userRepository.findAll());
+    public User add(User user) {
+        return userRepository.save(user);
     }
 
     @Override
-    public User add(User user) {
-        return userRepository.save(user);
+    public List<User> getAll() {
+        return Lists.newArrayList(userRepository.findAll());
     }
 
     @Override
