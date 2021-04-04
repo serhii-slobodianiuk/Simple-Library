@@ -1,5 +1,6 @@
 package com.slobodianiuk.library.service;
 
+import com.slobodianiuk.library.exception.BusinessServiceException;
 import com.slobodianiuk.library.model.Book;
 import com.slobodianiuk.library.model.User;
 import com.slobodianiuk.library.repository.BookRepository;
@@ -14,7 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -85,5 +86,19 @@ class UserBookServiceImplTest {
         verify(bookRepository, times(1)).findByIsbn(anyString());
         verify(bookRepository, times(1)).save(any(Book.class));
 
+    }
+
+    @Test
+    void testTakeBookAndThrowBusinessServiceException(){
+        user.setId(USER_ID);
+        book.setId(BOOK_ID);
+        book.setUser(user);
+
+        when(userRepository.findByPhoneNumber(PHONE_NUMBER)).thenReturn(null);
+
+        assertThrows(BusinessServiceException.class, () -> userBookService.takeBook(PHONE_NUMBER, ISBN));
+
+        verify(userRepository, times(1)).findByPhoneNumber(PHONE_NUMBER);
+        verify(bookRepository, never()).save(any(Book.class));
     }
 }
