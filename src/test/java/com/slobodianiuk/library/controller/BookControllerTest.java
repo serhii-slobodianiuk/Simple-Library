@@ -83,6 +83,8 @@ class BookControllerTest {
 
     @Test
     void testAddBook() throws Exception {
+
+//        fixme (return status 400)
         when(bookService.add(any(Book.class))).thenReturn(book);
 
         MvcResult mvcResult = mockMvc.perform(post("/book"))
