@@ -1,26 +1,31 @@
 package com.slobodianiuk.library.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slobodianiuk.library.dto.BookDto;
 import com.slobodianiuk.library.model.Book;
 import com.slobodianiuk.library.service.BookService;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = BookController.class)
@@ -31,6 +36,9 @@ class BookControllerTest {
     private static final String ISBN = "111";
     private static final Long ID = 123L;
     private static final String PHONE_NUMBER = "12345";
+
+    @InjectMocks
+    BookController bookController;
 
     @Autowired
     MockMvc mockMvc;
@@ -51,6 +59,7 @@ class BookControllerTest {
         book.setTitle(TITLE);
         book.setAuthor(AUTHOR);
         book.setIsbn(ISBN);
+        bookDto = new BookDto(book.getTitle(), book.getAuthor(), book.getIsbn());
     }
 
     @Test
@@ -72,6 +81,24 @@ class BookControllerTest {
         assertEquals(ISBN, actualBookDto.getIsbn());
     }
 
+    @Test
+    void testAddBook() throws Exception {
+        when(bookService.add(any(Book.class))).thenReturn(book);
 
+        MvcResult mvcResult = mockMvc.perform(post("/book"))
+                .andExpect(status().isOk()).andReturn();
+
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        List<BookDto> actualBookDtos = mapper.readValue(actualResponse, new TypeReference<>() {
+        });
+        Book book1 = BookDto.toModel(actualBookDtos.get(0));
+        System.out.println(book1);
+
+        assertEquals(1, actualBookDtos.size());
+        assertEquals(TITLE, book1.getTitle());
+        assertEquals(AUTHOR, book1.getAuthor());
+        assertEquals(ISBN, book1.getIsbn());
+
+    }
 
 }
