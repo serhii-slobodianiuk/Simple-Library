@@ -109,4 +109,26 @@ class BookControllerTest {
         verify(bookService).add(any(Book.class));
     }
 
+    @Test
+    void testUpdateBook() throws Exception {
+
+        when(bookService.update(any(Book.class))).thenReturn(book);
+
+        MvcResult mvcResult = mockMvc.perform(put("/book")
+                .content(mapper.writeValueAsString(bookDto))
+                .contentType("application/json;charset=UTF-8"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        Book actualBook = mapper.readValue(actualResponse, new TypeReference<>() {
+        });
+
+        assertEquals(TITLE, actualBook.getTitle());
+        assertEquals(AUTHOR, actualBook.getAuthor());
+        assertEquals(ISBN, actualBook.getIsbn());
+
+        verify(bookService).update(any(Book.class));
+    }
 }
