@@ -84,7 +84,8 @@ class BookControllerTest {
 
         mockMvc.perform(post("/book")
                 .content(mapper.writeValueAsString(bookDto))
-                .contentType("application/json;charset=UTF-8"));
+                .contentType("application/json;charset=UTF-8"))
+                .andExpect(status().isOk());
 
     }
 }
