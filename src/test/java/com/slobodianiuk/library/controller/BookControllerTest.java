@@ -4,11 +4,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slobodianiuk.library.dto.BookDto;
 import com.slobodianiuk.library.model.Book;
+import com.slobodianiuk.library.repository.BookRepository;
 import com.slobodianiuk.library.service.BookService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -20,9 +22,11 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -37,6 +41,9 @@ class BookControllerTest {
 
     @InjectMocks
     BookController bookController;
+
+    @Mock
+    BookRepository repository;
 
     @Autowired
     MockMvc mockMvc;
@@ -66,6 +73,7 @@ class BookControllerTest {
         when(bookService.getAllAvailable()).thenReturn(Collections.singletonList(book));
 
         MvcResult mvcResult = mockMvc.perform(get("/book"))
+                .andDo(print())
                 .andExpect(status().isOk()).andReturn();
 
         String actualResponse = mvcResult.getResponse().getContentAsString();
@@ -82,10 +90,23 @@ class BookControllerTest {
     @Test
     void testAddBook() throws Exception {
 
-        mockMvc.perform(post("/book")
-                .content(mapper.writeValueAsString(bookDto))
-                .contentType("application/json;charset=UTF-8"))
-                .andExpect(status().isOk());
+        when(bookService.add(any(Book.class))).thenReturn(book);
 
+        MvcResult mvcResult = mockMvc.perform(post("/book")
+                .content(mapper.writeValueAsString(book))
+                .contentType("application/json;charset=UTF-8"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        BookDto actualBookDto = mapper.readValue(actualResponse, new TypeReference<>() {
+        });
+
+        assertEquals(TITLE, actualBookDto.getTitle());
+        assertEquals(AUTHOR, actualBookDto.getAuthor());
+        assertEquals(ISBN, actualBookDto.getIsbn());
+
+        verify(bookService).add(any(Book.class));
     }
+
 }
