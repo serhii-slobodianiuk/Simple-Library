@@ -12,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -21,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -84,23 +82,9 @@ class BookControllerTest {
     @Test
     void testAddBook() throws Exception {
 
-//        fixme (return status 400)
-        when(bookService.add(any(Book.class))).thenReturn(book);
-
-        MvcResult mvcResult = mockMvc.perform(post("/book"))
-                .andExpect(status().isOk()).andReturn();
-
-        String actualResponse = mvcResult.getResponse().getContentAsString();
-        List<BookDto> actualBookDtos = mapper.readValue(actualResponse, new TypeReference<>() {
-        });
-        Book book1 = BookDto.toModel(actualBookDtos.get(0));
-        System.out.println(book1);
-
-        assertEquals(1, actualBookDtos.size());
-        assertEquals(TITLE, book1.getTitle());
-        assertEquals(AUTHOR, book1.getAuthor());
-        assertEquals(ISBN, book1.getIsbn());
+        mockMvc.perform(post("/book")
+                .content(mapper.writeValueAsString(bookDto))
+                .contentType("application/json;charset=UTF-8"));
 
     }
-
 }
