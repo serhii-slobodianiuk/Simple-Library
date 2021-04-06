@@ -23,8 +23,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -43,7 +42,7 @@ class BookControllerTest {
     BookController bookController;
 
     @Mock
-    BookRepository repository;
+    BookRepository bookRepository;
 
     @Autowired
     MockMvc mockMvc;
@@ -130,5 +129,19 @@ class BookControllerTest {
         assertEquals(ISBN, actualBook.getIsbn());
 
         verify(bookService).update(any(Book.class));
+    }
+
+    @Test
+    void testDeleteBook() throws Exception {
+
+        doNothing().when(bookService).delete(ISBN);
+
+        mockMvc.perform(delete("/book")
+                .param("isbn", ISBN)
+                .contentType("application/json;charset=UTF-8"))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        verify(bookService).delete(anyString());
     }
 }
