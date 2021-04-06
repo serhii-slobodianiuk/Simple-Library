@@ -3,7 +3,6 @@ package com.slobodianiuk.library.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slobodianiuk.library.dto.UserDto;
-import com.slobodianiuk.library.model.Book;
 import com.slobodianiuk.library.model.User;
 import com.slobodianiuk.library.repository.UserRepository;
 import com.slobodianiuk.library.service.UserService;
@@ -24,8 +23,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -111,7 +110,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testUpdateUser() throws Exception{
+    void testUpdateUser() throws Exception {
         when(userService.update(any(User.class))).thenReturn(user);
 
         MvcResult mvcResult = mockMvc.perform(put("/user")
@@ -130,5 +129,18 @@ public class UserControllerTest {
         assertEquals(PHONE_NUMBER, actualUserDto.getPhoneNumber());
 
         verify(userService).update(any(User.class));
+    }
+
+    @Test
+    void testDeleteUser() throws Exception {
+        doNothing().when(userService).delete(PHONE_NUMBER);
+
+        mockMvc.perform(delete("/user")
+                .param("phoneNumber", PHONE_NUMBER)
+                .contentType("application/json;charset=UTF-8"))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        verify(userService).delete(anyString());
     }
 }
