@@ -12,17 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestController()
+@RestController
 public class UserController {
 
     private final UserService userService;
-    private final UserRepository userRepository;
-    private final BookRepository bookRepository;
 
-    public UserController(UserService userService, UserRepository userRepository, BookRepository bookRepository) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userRepository = userRepository;
-        this.bookRepository = bookRepository;
     }
 
     @GetMapping("/user")
