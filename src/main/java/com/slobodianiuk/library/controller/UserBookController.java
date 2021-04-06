@@ -8,11 +8,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+
 @RestController
 public class UserBookController {
 
     @Autowired
-    private UserBookService userBookService;
+    public UserBookService userBookService;
 
     @PostMapping("/userBook")
     public ResponseEntity<Object> takeBook(@RequestBody UserBookDto dto) {
