@@ -99,5 +99,6 @@ class UserBookServiceImplTest {
 
         verify(userRepository, times(1)).findByPhoneNumber(PHONE_NUMBER);
         verify(bookRepository, never()).save(any(Book.class));
+
     }
 }
