@@ -18,6 +18,10 @@ public class BookServiceImpl implements BookService {
     @Autowired
     private UserBookService userBookService;
 
+    /*
+        if the book already exists, we should automatically generate a new ISBN
+        and add the same book successfully
+    */
     @Override
     public Book add(Book book) {
         return bookRepository.save(book);
