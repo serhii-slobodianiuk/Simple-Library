@@ -21,7 +21,7 @@ public class UserDto {
     @JsonProperty
     private List<BookDto> books;
 
-    private UserDto(String firstName, String lastName, String phoneNumber) {
+    public UserDto(String firstName, String lastName, String phoneNumber) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
