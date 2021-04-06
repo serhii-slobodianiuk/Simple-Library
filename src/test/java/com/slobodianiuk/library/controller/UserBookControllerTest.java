@@ -1,5 +1,6 @@
 package com.slobodianiuk.library.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slobodianiuk.library.dto.UserBookDto;
 import com.slobodianiuk.library.service.BookService;
@@ -68,9 +69,18 @@ public class UserBookControllerTest {
                 .content(mapper.writeValueAsString(userBookDto))
                 .contentType("application/json;charset=UTF-8"))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn();
+                .andExpect(status().isOk());
 
         verify(userBookService).takeBook(anyString(), anyString());
+    }
+
+    @Test
+    void testTakeBookAndThrowBusinessServiceException() throws Exception {
+
+        mockMvc.perform(post("/userBook")
+                .content(mapper.writeValueAsString(null))
+                .contentType("application/json;charset=UTF-8"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 }
