@@ -106,7 +106,7 @@ class BookServiceImplTest {
 
         book.setId(ID);
 
-        when(repository.findByIsbn(ISBN)).thenReturn(null);
+        when(repository.findByIsbn(anyString())).thenReturn(null);
 
         assertThrows(NotFoundException.class, () -> bookService.update(book));
         verify(repository, never()).save(any(Book.class));
