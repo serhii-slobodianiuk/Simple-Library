@@ -43,4 +43,14 @@ public class BookDtoTest {
             assertEquals(book, actualBook);
         }
     }
+
+    @Test
+    void testFromModel() {
+        try (MockedStatic<BookDto> userDtoMockedStatic = Mockito.mockStatic(BookDto.class)) {
+            userDtoMockedStatic.when(() -> BookDto.fromModel(book)).thenReturn(bookDto);
+
+            BookDto actualBookDto = BookDto.fromModel(book);
+            assertEquals(bookDto, actualBookDto);
+        }
+    }
 }
