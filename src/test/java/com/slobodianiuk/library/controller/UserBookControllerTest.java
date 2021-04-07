@@ -1,6 +1,5 @@
 package com.slobodianiuk.library.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slobodianiuk.library.dto.UserBookDto;
 import com.slobodianiuk.library.service.BookService;
@@ -19,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -75,12 +75,17 @@ public class UserBookControllerTest {
     }
 
     @Test
-    void testTakeBookAndThrowBusinessServiceException() throws Exception {
+    void testReturnBook() throws Exception {
+        doNothing().when(userBookService)
+                .returnBook(userBookDto.getPhoneNumber(), userBookDto.getIsbn());
 
-        mockMvc.perform(post("/userBook")
-                .content(mapper.writeValueAsString(null))
+        mockMvc.perform(delete("/userBook")
+                .param("phone", PHONE_NUMBER)
+                .param("isbn", ISBN)
                 .contentType("application/json;charset=UTF-8"))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
+
+        verify(userBookService).returnBook(anyString(), anyString());
     }
 }
