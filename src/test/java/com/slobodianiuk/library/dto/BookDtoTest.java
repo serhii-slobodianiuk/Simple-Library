@@ -24,6 +24,7 @@ public class BookDtoTest {
     @BeforeEach
     void init() {
         book = new Book();
+        book.setId(ID);
         book.setTitle(TITLE);
         book.setAuthor(AUTHOR);
         book.setIsbn(ISBN);
