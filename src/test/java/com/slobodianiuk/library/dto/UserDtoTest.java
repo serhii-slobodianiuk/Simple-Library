@@ -46,7 +46,6 @@ public class UserDtoTest {
 
     @Test
     void testFromModel() {
-
         try (MockedStatic<UserDto> userDtoMockedStatic = Mockito.mockStatic(UserDto.class)) {
             userDtoMockedStatic.when(() -> UserDto.fromModel(user)).thenReturn(userDto);
 
