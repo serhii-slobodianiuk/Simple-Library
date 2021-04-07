@@ -109,7 +109,7 @@ public class UserServiceImplTest {
         when(repository.findByPhoneNumber(PHONE_NUMBER)).thenReturn(null);
 
         assertThrows(NotFoundException.class, () -> userService.update(user));
-        verify(repository, never()).delete(any(User.class));
+        verify(repository, never()).save(any(User.class));
     }
 
     @Test
