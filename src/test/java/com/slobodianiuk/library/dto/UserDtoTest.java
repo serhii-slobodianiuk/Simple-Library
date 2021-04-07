@@ -8,7 +8,6 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -30,19 +29,30 @@ public class UserDtoTest {
         user.setFirstName(FIRST_NAME);
         user.setLastName(LAST_NAME);
         user.setPhoneNumber(PHONE_NUMBER);
+
+        userDto = new UserDto(user.getFirstName(),
+                user.getLastName(), user.getPhoneNumber());
     }
 
     @Test
     void testToModel() {
-
-        userDto = new UserDto(user.getFirstName(),
-                user.getLastName(), user.getPhoneNumber());
 
         try (MockedStatic<UserDto> userDtoMockedStatic = Mockito.mockStatic(UserDto.class)) {
             userDtoMockedStatic.when(() -> UserDto.toModel(userDto)).thenReturn(user);
 
             User actualUser = UserDto.toModel(userDto);
             assertEquals(user, actualUser);
+        }
+    }
+
+    @Test
+    void testFromModel() {
+
+        try (MockedStatic<UserDto> userDtoMockedStatic = Mockito.mockStatic(UserDto.class)) {
+            userDtoMockedStatic.when(() -> UserDto.fromModel(user)).thenReturn(userDto);
+
+            UserDto actualUserDto = UserDto.fromModel(user);
+            assertEquals(userDto, actualUserDto);
         }
     }
 }
