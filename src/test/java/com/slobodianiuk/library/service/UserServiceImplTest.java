@@ -93,7 +93,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void deleteUser() {
+    void testDeleteUser() {
         user.setId(ID);
 
         when(repository.findByPhoneNumber(PHONE_NUMBER)).thenReturn(user);
