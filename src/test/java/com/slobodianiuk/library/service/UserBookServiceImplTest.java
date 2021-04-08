@@ -11,10 +11,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,7 +28,7 @@ class UserBookServiceImplTest {
     private static final String PHONE_NUMBER = "+442084659275";
 
     private static final Long BOOK_ID = 123L;
-    private static final String ISBN = "12300857251";
+    private static final String ISBN = "55555";
     private static final String TITLE = "Fairy Tales";
     private static final String AUTHOR = "Folklore";
 
@@ -46,24 +48,22 @@ class UserBookServiceImplTest {
     @BeforeEach
     void init() {
         user = new User();
+        user.setId(USER_ID);
         user.setFirstName(FIRST_NAME);
         user.setLastName(LAST_NAME);
         user.setPhoneNumber(PHONE_NUMBER);
 
         book = new Book();
+        book.setId(BOOK_ID);
         book.setIsbn(ISBN);
         book.setAuthor(AUTHOR);
         book.setTitle(TITLE);
 
-        listBook = new ArrayList<>();
+        listBook = new ArrayList<>(1);
     }
 
     @Test
     void testTakeBook() {
-
-        user.setId(USER_ID);
-        book.setId(BOOK_ID);
-
         Book book1 = new Book();
         book1.setIsbn("9999999");
         book1.setTitle("qwerty");
@@ -84,21 +84,37 @@ class UserBookServiceImplTest {
         verify(userRepository, times(1)).findByPhoneNumber(anyString());
         verify(bookRepository, times(1)).findByIsbn(anyString());
         verify(bookRepository, times(1)).save(any(Book.class));
-
     }
 
     @Test
-    void testTakeBookAndThrowBusinessServiceException(){
-        user.setId(USER_ID);
-        book.setId(BOOK_ID);
-        book.setUser(user);
+    void testTakeBookAndThrowBusinessServiceException() {
 
-        when(userRepository.findByPhoneNumber(PHONE_NUMBER)).thenReturn(null);
+        user.setBooks(listBook);
+
+        when(userRepository.findByPhoneNumber(PHONE_NUMBER)).thenReturn(user).thenReturn(null);
 
         assertThrows(BusinessServiceException.class, () -> userBookService.takeBook(PHONE_NUMBER, ISBN));
+        assertThrows(BusinessServiceException.class, () -> userBookService.takeBook(PHONE_NUMBER, ISBN));
 
-        verify(userRepository, times(1)).findByPhoneNumber(PHONE_NUMBER);
+        verify(userRepository).findByPhoneNumber(PHONE_NUMBER);
         verify(bookRepository, never()).save(any(Book.class));
+    }
 
+    @Test
+    void testReturnBook() {
+
+        listBook.add(book);
+        user.setBooks(listBook);
+
+        when(userRepository.findByPhoneNumber(PHONE_NUMBER)).thenReturn(user);
+        when(bookRepository.save(book)).thenReturn(book);
+
+        userBookService.returnBook(PHONE_NUMBER, ISBN);
+
+        assertEquals(PHONE_NUMBER, user.getPhoneNumber());
+        assertEquals(ISBN, book.getIsbn());
+
+        verify(userRepository).findByPhoneNumber(PHONE_NUMBER);
+        verify(bookRepository).save(book);
     }
 }
