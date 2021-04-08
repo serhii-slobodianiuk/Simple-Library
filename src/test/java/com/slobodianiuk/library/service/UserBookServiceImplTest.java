@@ -88,15 +88,27 @@ class UserBookServiceImplTest {
 
     @Test
     void testTakeBookAndThrowBusinessServiceException() {
-
         user.setBooks(listBook);
 
-        when(userRepository.findByPhoneNumber(PHONE_NUMBER)).thenReturn(user).thenReturn(null);
+        Book book1 = new Book();
+        book1.setIsbn("55555");
+        book1.setTitle("qwerty");
+        book1.setAuthor("Me");
+        List<Book> ls = new ArrayList<>();
+        ls.add(book1);
+
+        User user1 = new User();
+        user1.setPhoneNumber(PHONE_NUMBER);
+        user1.setBooks(ls);
+
+        when(userRepository.findByPhoneNumber(PHONE_NUMBER))
+                .thenReturn(user).thenReturn(null).thenReturn(user1);
 
         assertThrows(BusinessServiceException.class, () -> userBookService.takeBook(PHONE_NUMBER, ISBN));
         assertThrows(BusinessServiceException.class, () -> userBookService.takeBook(PHONE_NUMBER, ISBN));
+        assertThrows(BusinessServiceException.class, () -> userBookService.takeBook(PHONE_NUMBER, ISBN));
 
-        verify(userRepository).findByPhoneNumber(PHONE_NUMBER);
+        verify(userRepository, times(3)).findByPhoneNumber(PHONE_NUMBER);
         verify(bookRepository, never()).save(any(Book.class));
     }
 
@@ -116,5 +128,19 @@ class UserBookServiceImplTest {
 
         verify(userRepository).findByPhoneNumber(PHONE_NUMBER);
         verify(bookRepository).save(book);
+    }
+
+    @Test
+    void testReturnBookAndThrowBusinessServiceException() {
+        user.setBooks(listBook);
+
+        when(userRepository.findByPhoneNumber(PHONE_NUMBER)).thenReturn(user).thenReturn(null);
+
+        assertThrows(BusinessServiceException.class, () -> userBookService.returnBook(PHONE_NUMBER, ISBN));
+        assertThrows(BusinessServiceException.class, () -> userBookService.returnBook(PHONE_NUMBER, ISBN));
+
+        verify(userRepository, times(2)).findByPhoneNumber(PHONE_NUMBER);
+        verify(bookRepository, never()).save(any(Book.class));
+
     }
 }
