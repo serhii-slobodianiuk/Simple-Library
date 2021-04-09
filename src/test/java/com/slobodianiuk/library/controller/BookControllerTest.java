@@ -3,9 +3,11 @@ package com.slobodianiuk.library.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slobodianiuk.library.dto.BookDto;
+import com.slobodianiuk.library.exception.BusinessServiceException;
 import com.slobodianiuk.library.model.Book;
 import com.slobodianiuk.library.repository.BookRepository;
 import com.slobodianiuk.library.service.BookService;
+import com.sun.jdi.InternalException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +16,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -88,11 +91,10 @@ class BookControllerTest {
 
     @Test
     void testAddBook() throws Exception {
-
         when(bookService.add(any(Book.class))).thenReturn(book);
 
         MvcResult mvcResult = mockMvc.perform(post("/book")
-                .content(mapper.writeValueAsString(book))
+                .content(mapper.writeValueAsString(bookDto))
                 .contentType("application/json;charset=UTF-8"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -106,6 +108,19 @@ class BookControllerTest {
         assertEquals(ISBN, actualBookDto.getIsbn());
 
         verify(bookService).add(any(Book.class));
+    }
+
+    @Test
+    void testAddBookAndThrowInternalServerError() throws Exception {
+
+        when(bookService.add(any(Book.class)))
+                .thenThrow(new BusinessServiceException("Internal Server Error"));
+
+        mockMvc.perform(post("/book")
+                .content(mapper.writeValueAsString(bookDto))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andDo(print());
     }
 
     @Test
@@ -132,6 +147,19 @@ class BookControllerTest {
     }
 
     @Test
+    void testUpdateBookAndThrowInternalServerError() throws Exception {
+
+        when(bookService.update(any(Book.class)))
+                .thenThrow(new BusinessServiceException("Internal Server Error"));
+
+        mockMvc.perform(post("/book")
+                .content(mapper.writeValueAsString(bookDto))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andDo(print());
+    }
+
+    @Test
     void testDeleteBook() throws Exception {
 
         doNothing().when(bookService).delete(ISBN);
@@ -143,5 +171,17 @@ class BookControllerTest {
                 .andExpect(status().isOk());
 
         verify(bookService).delete(anyString());
+    }
+
+    @Test
+    public void testDeleteBookAndThrowInternalServerError() throws Exception {
+        doThrow(new InternalException("Internal Server Error"))
+                .when(bookService).delete(ISBN);
+
+        mockMvc.perform(delete("/book")
+                .param("isbn", ISBN)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andDo(print());
     }
 }
