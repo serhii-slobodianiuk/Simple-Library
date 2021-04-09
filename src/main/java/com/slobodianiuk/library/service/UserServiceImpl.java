@@ -19,8 +19,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserBookService userBookService;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, UserBookService userBookService) {
         this.userRepository = userRepository;
+        this.userBookService =userBookService;
     }
 
     @Override
@@ -51,12 +52,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(String phoneNumber) {
-        User foundUser = userRepository.findByPhoneNumber(phoneNumber);
+        User foundUser = userRepository
+                .findByPhoneNumber(phoneNumber);
         if (foundUser != null) {
             List<Book> books = foundUser.getBooks();
             if (books != null) {
-                books.forEach(book ->
-                        userBookService.returnBook(phoneNumber, book.getIsbn()));
+                books.forEach(book -> userBookService.returnBook(phoneNumber, book.getIsbn()));
             }
             userRepository.deleteById(foundUser.getId());
         } else {
