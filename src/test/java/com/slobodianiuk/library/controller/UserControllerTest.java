@@ -3,6 +3,7 @@ package com.slobodianiuk.library.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slobodianiuk.library.dto.UserDto;
+import com.slobodianiuk.library.exception.BusinessServiceException;
 import com.slobodianiuk.library.model.User;
 import com.slobodianiuk.library.repository.UserRepository;
 import com.slobodianiuk.library.service.UserService;
@@ -14,6 +15,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -27,6 +29,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -74,7 +77,8 @@ public class UserControllerTest {
 
         MvcResult mvcResult = mockMvc.perform(get("/user"))
                 .andDo(print())
-                .andExpect(status().isOk()).andReturn();
+                .andExpect(status().isOk())
+                .andReturn();
 
         String actualResponse = mvcResult.getResponse().getContentAsString();
         List<UserDto> actualUserDtos = mapper.readValue(actualResponse, new TypeReference<>() {
@@ -89,14 +93,25 @@ public class UserControllerTest {
     }
 
     @Test
+    public void testGetAllUsersAndThrowInternalServerError() throws Exception {
+        when(userService.getAll()).thenThrow(new BusinessServiceException("Internal Server Error"));
+
+        mockMvc.perform(get("/user")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andDo(print());
+    }
+
+    @Test
     void testAddUser() throws Exception {
         when(userService.add(any(User.class))).thenReturn(user);
 
         MvcResult mvcResult = mockMvc.perform(post("/user")
-                .content(mapper.writeValueAsString(user))
-                .contentType("application/json;charset=UTF-8"))
+                .content(mapper.writeValueAsString(userDto))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(content().json(mapper.writeValueAsString(userDto)))
                 .andReturn();
         String actualResponse = mvcResult.getResponse().getContentAsString();
         UserDto actualUserDto = mapper.readValue(actualResponse, new TypeReference<>() {
@@ -110,14 +125,27 @@ public class UserControllerTest {
     }
 
     @Test
+    public void testAddUsersAndThrowInternalServerError() throws Exception {
+        when(userService.add(any(User.class)))
+                .thenThrow(new BusinessServiceException("Internal Server Error"));
+
+        mockMvc.perform(post("/user")
+                .content(mapper.writeValueAsString(userDto))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andDo(print());
+    }
+
+    @Test
     void testUpdateUser() throws Exception {
         when(userService.update(any(User.class))).thenReturn(user);
 
         MvcResult mvcResult = mockMvc.perform(put("/user")
                 .content(mapper.writeValueAsString(userDto))
-                .contentType("application/json;charset=UTF-8"))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(content().json(mapper.writeValueAsString(userDto)))
                 .andReturn();
 
         String actualResponse = mvcResult.getResponse().getContentAsString();
@@ -132,15 +160,39 @@ public class UserControllerTest {
     }
 
     @Test
+    public void testUpdateUsersAndThrowInternalServerError() throws Exception {
+        when(userService.update(any(User.class)))
+                .thenThrow(new BusinessServiceException("Internal Server Error"));
+
+        mockMvc.perform(put("/user")
+                .content(mapper.writeValueAsString(userDto))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andDo(print());
+    }
+
+    @Test
     void testDeleteUser() throws Exception {
         doNothing().when(userService).delete(PHONE_NUMBER);
 
         mockMvc.perform(delete("/user")
                 .param("phoneNumber", PHONE_NUMBER)
-                .contentType("application/json;charset=UTF-8"))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
         verify(userService).delete(anyString());
+    }
+
+    @Test
+    public void testDeleteUsersAndThrowInternalServerError() throws Exception {
+        doThrow(new BusinessServiceException("Internal Server Error"))
+                .when(userService).delete(PHONE_NUMBER);
+
+        mockMvc.perform(delete("/user")
+                .param("phoneNumber", PHONE_NUMBER)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andDo(print());
     }
 }
