@@ -8,6 +8,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,21 +38,25 @@ public class BookDtoTest {
 
     @Test
     void testToModel() {
+        assertThat(book = BookDto.toModel(bookDto)).isEqualTo(book);
+
         try (MockedStatic<BookDto> userDtoMockedStatic = Mockito.mockStatic(BookDto.class)) {
             userDtoMockedStatic.when(() -> BookDto.toModel(bookDto)).thenReturn(book);
 
-            Book actualBook = BookDto.toModel(bookDto);
-            assertEquals(book, actualBook);
+            assertThat(book = BookDto.toModel(bookDto)).isEqualTo(book);
         }
+        assertThat(book = BookDto.toModel(bookDto)).isEqualTo(book);
     }
 
     @Test
     void testFromModel() {
+        assertEquals(bookDto = BookDto.fromModel(book), bookDto);
+
         try (MockedStatic<BookDto> userDtoMockedStatic = Mockito.mockStatic(BookDto.class)) {
             userDtoMockedStatic.when(() -> BookDto.fromModel(book)).thenReturn(bookDto);
 
-            BookDto actualBookDto = BookDto.fromModel(book);
-            assertEquals(bookDto, actualBookDto);
+            assertEquals(bookDto = BookDto.fromModel(book), bookDto);
         }
+        assertEquals(bookDto = BookDto.fromModel(book), bookDto);
     }
 }
