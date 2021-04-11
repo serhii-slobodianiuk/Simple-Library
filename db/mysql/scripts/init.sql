@@ -26,15 +26,16 @@ create table if not exists books
 );
 
 insert into users(first_name, last_name, phone_number) values
-('Petro', 'Poroshenko', '111'),
+('Leonid', 'Kravchuk', '111'),
 ('Leonid', 'Kuchma', '222'),
-('Leonid', 'Kravchuk', '333'),
-('Volodymyr', 'Zelensky', '444'),
-('Viktor', 'Yanukovych', '555'),
-('Viktor', 'Yushchenko', '666');
+('Viktor', 'Yushchenko', '333');
+('Viktor', 'Yanukovych', '444'),
+('Petro', 'Poroshenko', '555'),
+('Volodymyr', 'Zelensky', '666'),
 
 insert into books(title, user_id, isbn) values
 ('Konstytuciya', 1, '123'),
 ('Ugolovna sprava', 5, '456'),
 ('Diia', 4, '789'),
 ('Zakon', NULL, '000');
+('Fairy Tales', 2, 'Folklore');
