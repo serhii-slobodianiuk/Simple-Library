@@ -75,6 +75,7 @@ public class UserDtoTest {
             List<Book> books = user.getBooks();
             Book actualBook = books.get(0);
 
+            assertEquals(1, books.size());
             assertEquals(actualBook, book);
             assertThat(userDto = UserDto.fromModel(user)).isEqualTo(userDto);
         }
