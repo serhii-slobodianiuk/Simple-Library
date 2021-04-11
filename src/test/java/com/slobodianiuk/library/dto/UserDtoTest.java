@@ -12,7 +12,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 public class UserDtoTest {
@@ -27,13 +29,11 @@ public class UserDtoTest {
     private static final String TITLE = "Fairy Tales";
     private static final String AUTHOR = "Folklore";
 
-
     User user;
     UserDto userDto;
     Book book;
     BookDto bookDto;
     List<Book> listBook;
-    List<BookDto> listBookDto;
 
     @BeforeEach
     void init() {
@@ -49,13 +49,7 @@ public class UserDtoTest {
 
     @Test
     void testToModel() {
-        assertEquals(user = UserDto.toModel(userDto), user);
-
-        try (MockedStatic<UserDto> userDtoMockedStatic = Mockito.mockStatic(UserDto.class)) {
-            userDtoMockedStatic.when(() -> UserDto.toModel(userDto)).thenReturn(user);
-            assertEquals(user = UserDto.toModel(userDto), user);
-        }
-        assertEquals(user = UserDto.toModel(userDto), user);
+        assertThat(user = UserDto.toModel(userDto)).isEqualTo(user);
     }
 
     @Test
@@ -71,30 +65,18 @@ public class UserDtoTest {
                 book.getAuthor(),
                 book.getIsbn());
 
-        listBookDto = new ArrayList<>();
-        listBookDto.add(bookDto);
-
         listBook = new ArrayList<>();
         listBook.add(book);
+        user.setBooks(listBook);
 
-        assertEquals(userDto = UserDto.fromModel(user), userDto);
-
-        try (MockedStatic<UserDto> userDtoMockedStatic = Mockito.mockStatic(UserDto.class)) {
-            userDtoMockedStatic.when(() -> UserDto.fromModel(user)).thenReturn(userDto);
-
-            user.setBooks(listBook);
-            userDto.setBooks(listBookDto);
+        try (MockedStatic<BookDto> userDtoMockedStatic = Mockito.mockStatic(BookDto.class)) {
+            userDtoMockedStatic.when(() -> BookDto.fromModel(any(Book.class))).thenReturn(bookDto);
 
             List<Book> books = user.getBooks();
             Book actualBook = books.get(0);
 
-            BookDto expectedBookDto = userDto.getBooks().get(0);
-            userDto.getBooks().add(BookDto.fromModel(actualBook));
-            BookDto actualBookDto = userDto.getBooks().get(0);
-
-            assertEquals(expectedBookDto, actualBookDto);
-            assertEquals(userDto = UserDto.fromModel(user), userDto);
+            assertEquals(actualBook, book);
+            assertThat(userDto = UserDto.fromModel(user)).isEqualTo(userDto);
         }
-        assertEquals(userDto = UserDto.fromModel(user), userDto);
     }
 }

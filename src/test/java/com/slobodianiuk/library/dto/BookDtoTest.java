@@ -4,12 +4,9 @@ import com.slobodianiuk.library.model.Book;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 public class BookDtoTest {
@@ -39,24 +36,10 @@ public class BookDtoTest {
     @Test
     void testToModel() {
         assertThat(book = BookDto.toModel(bookDto)).isEqualTo(book);
-
-        try (MockedStatic<BookDto> userDtoMockedStatic = Mockito.mockStatic(BookDto.class)) {
-            userDtoMockedStatic.when(() -> BookDto.toModel(bookDto)).thenReturn(book);
-
-            assertThat(book = BookDto.toModel(bookDto)).isEqualTo(book);
-        }
-        assertThat(book = BookDto.toModel(bookDto)).isEqualTo(book);
     }
 
     @Test
     void testFromModel() {
-        assertEquals(bookDto = BookDto.fromModel(book), bookDto);
-
-        try (MockedStatic<BookDto> userDtoMockedStatic = Mockito.mockStatic(BookDto.class)) {
-            userDtoMockedStatic.when(() -> BookDto.fromModel(book)).thenReturn(bookDto);
-
-            assertEquals(bookDto = BookDto.fromModel(book), bookDto);
-        }
-        assertEquals(bookDto = BookDto.fromModel(book), bookDto);
+        assertThat(bookDto = BookDto.fromModel(book)).isEqualTo(bookDto);
     }
 }
